@@ -15,7 +15,8 @@ let boundaryThickness = "1px";
 let pathData;
 let outlierState = "Maharashtra";
 
-const colorScale = d3.scaleSequential(d3.interpolatePurples)
+// const colorScale = d3.scaleSequential(d3.interpolatePurples)
+const colorScale = d3.scaleSequentialLog(d3.interpolatePurples).domain([0, 1])
 const svg = d3.select("body")
 				.append("svg")
 				.attr("width", width)
@@ -115,7 +116,6 @@ function fillStatesInfo(companyData) {
 			states[state].countRatio_ = states[state].count/(totalCount-states[outlierState].count)
 		}
 	}
-	console.log(states)
 	console.log(`Successfully finished running fillStatesInfo`)
 
 }
@@ -194,6 +194,7 @@ function makeMapInteractive() {
 				else if(showType == "count_") v = states[stateName].countRatio_;
 				else if(showType == "value") v = states[stateName].contributionPercent;
 				else if(showType == "value_") v = states[stateName].contributionPercent_;
+				console.log(v);
 				return colorScale(v);
 			});
 			tooltip.style("display", "none");
