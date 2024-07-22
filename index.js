@@ -1,22 +1,36 @@
+// svg 
 const width = 1000, height = 700;
+
+// Legend
+const colorScaleLegendWidth = 50, colorScaleLegendHeight = 500;
+const colorScaleLegendX = 100, colorScaleLegendY = 100;
+const colorScaleNumRects = 20;
+
+// File paths
 const boundaryJsonPath = "./fetched_data/india_state_ut_administered.geojson";
 const companyDataPath = "./processed_data/final_file.csv"
 
 
 let states = {};
 let tooltip;
-let infobox;
-let coreCheckboxes = document.getElementsByClassName("core");
-let optionalCheckbox = document.querySelector("input.option")
+let checkboxes = document.getElementsByTagName("input");
 let showType = "value";
 let colorOnFocus = "green";
 let colorOfBoundary = "black";
 let boundaryThickness = "1px";
 let pathData;
-let outlierState = "Maharashtra";
+let legend;
 
-// const colorScale = d3.scaleSequential(d3.interpolatePurples)
-const colorScale = d3.scaleSequentialLog(d3.interpolatePurples).domain([0, 1])
+let scaleCount, scaleValue;
+let colorScaleCount, colorScaleValue;
+let countMax, countMin;
+let marketcapMax, marketcapMin;
+
+
+let dt = [];
+for(let i=0; i<colorScaleNumRects; i++) dt.push(i);
+let h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
+
 const svg = d3.select("body")
 				.append("svg")
 				.attr("width", width)
@@ -28,18 +42,41 @@ function main() {
 
 	tooltip = makeTooltip();
 	makeCheckboxesInteractive();
+	document.querySelector("input.value").checked = true;
 	d3.json(boundaryJsonPath).then(pathData_ => {
 		d3.csv(companyDataPath).then(companyData => {
-			pathData = pathData_
 			console.log("Succesfully loaded files")
+
+			pathData = pathData_
 			fillStatesInfo(companyData);
+			makeColorScales(companyData);
+			makeColorScaleLegend();
 			drawMap();
 			makeMapInteractive();
-	
 		}) 
-	})
-	infobox = makeInfoBox();
+	})	
+}
+
+function makeColorScales() {
+	marketcapMax = -1;
+	marketcapMin = 100000000;
 	
+	countMax = -1;
+	countMin = 10000000;
+
+	for(let state in states) {
+		let currMarketCap = states[state].contributionAbsolute;
+		let currCount = states[state].count;
+		marketcapMax = Math.max(marketcapMax, currMarketCap);
+		marketcapMin = Math.min(marketcapMin, currMarketCap);
+		countMax = Math.max(countMax, currCount);
+		countMin = Math.min(countMin, currCount);
+	}	
+	
+	scaleCount = d3.scaleSqrt([countMin, countMax], [0, colorScaleLegendHeight]);
+	scaleValue = d3.scaleSqrt([marketcapMin, marketcapMax], [0, colorScaleLegendHeight]);
+	colorScaleValue = d3.scaleSqrt([marketcapMin, marketcapMax], ["orange", "red"]);
+	colorScaleCount = d3.scaleSqrt([countMin, countMax], ["orange", "red"]);
 }
 
 function makeTooltip() {
@@ -58,26 +95,22 @@ function makeTooltip() {
 function checkboxChanged(event) {
 	console.log("checkboxChanged event triggered")
 	let cb = event.target;
-	if((coreCheckboxes[0].checked) && (coreCheckboxes[1].checked)) {
-		if(coreCheckboxes[0] == cb) coreCheckboxes[1].checked = false;
-		else coreCheckboxes[0].checked = false;
+	for(let elem of checkboxes) {
+		if((elem.checked == true) && (elem != cb)) {
+			elem.checked = false;
+		}
 	}
-	let base = "";
-	for(let elem of coreCheckboxes) {
-		if(elem.checked) base += elem.value;
-	}
-	if(optionalCheckbox.checked) base += "_";
 
-	showType = base;
+	showType = cb.getAttribute("class");
 	updateMap();
+	updateColorScaleLegend();
 }
 
 function makeCheckboxesInteractive() {
-	for(let elem of coreCheckboxes) {
+	for(let elem of checkboxes) {
 		if(elem.value == showType) elem.checked = true;
 		elem.addEventListener("change", checkboxChanged)
 	}
-	optionalCheckbox.addEventListener("change", checkboxChanged);
 }
 
 
@@ -88,9 +121,7 @@ function fillStatesInfo(companyData) {
 			contributionAbsolute: 0,
 			contributionPercent: 0,
 			count: 0,
-			countRatio: 0,
-			contributionPercent_: 0,
-			countRatio_: 0
+			countRatio: 0
 		}
 	}
 
@@ -111,10 +142,6 @@ function fillStatesInfo(companyData) {
 	for(let state in states) {
 		states[state].contributionPercent = states[state].contributionAbsolute/totalContribution;
 		states[state].countRatio = states[state].count/totalCount;
-		if(state != outlierState) {
-			states[state].contributionPercent_ = states[state].contributionAbsolute/(totalContribution-states[outlierState].contributionAbsolute);
-			states[state].countRatio_ = states[state].count/(totalCount-states[outlierState].count)
-		}
 	}
 	console.log(`Successfully finished running fillStatesInfo`)
 
@@ -140,13 +167,16 @@ function updateMap() {
 		.data(pathData.features)
 		.attr("fill", d => {
 			let stateName = d.properties.NAME_1;
-			let v;
-			if(showType == "count") v = states[stateName].countRatio;
-			else if(showType == "value") v = states[stateName].contributionPercent;
-			else if(showType == "count_") v =  states[stateName].countRatio_;
-			else if(showType == "value_") v = states[stateName].contributionPercent_;
-			else v = 0;
-			return colorScale(v);
+			let v, c;
+			if(showType == "count") {
+				v = states[stateName].count;
+				c = colorScaleCount(v);	
+			}
+			else {
+				v = states[stateName].contributionAbsolute;
+				c = colorScaleValue(v)
+			}
+			return c;
 		})
 }
 
@@ -155,57 +185,89 @@ function makeMapInteractive() {
 	.data(pathData.features)
 	.on("mouseover", function (event, d) {
 		let stateName = d.properties.NAME_1;
-		if((showType != "_") && (showType != "")) {
-			d3.select(this)
-				.attr("fill", colorOnFocus);
-			const bbox = this.getBBox();
-			tooltip.style("left", bbox.x + 20 + "px")
-			.style("top", bbox.y - 20 + "px" )
-			.style("display", "inline")
-			.text(() => {
-				let a, r;
-				if((showType == "count")) {
-					a = states[stateName].count;
-					r = states[stateName].countRatio;
-				}
-				else if(showType == "count_") {
-					a = states[stateName].count;
-					r = states[stateName].countRatio_;
-				}
-				else if(showType == "value") {
-					a = states[stateName].contributionAbsolute;
-					r = states[stateName].contributionPercent;
-				}
-				else if(showType == "value_") {
-					a = states[stateName].contributionAbsolute;
-					r = states[stateName].contributionPercent_;
-				}
-				return `${stateName} \n ${r.toFixed(2)} \n ${a}`;
-			})
-		}
+		const bbox = this.getBBox();
+		
+		d3.select(this)
+		.attr("fill", colorOnFocus);
+		
+		tooltip.style("left", bbox.x + 20 + "px")
+		.style("top", bbox.y - 20 + "px" )
+		.style("display", "inline")
+		.text(() => {
+			let a, r;
+			if((showType == "count")) {
+				a = states[stateName].count;
+				r = states[stateName].countRatio;
+			}
+			else {
+				a = states[stateName].contributionAbsolute;
+				r = states[stateName].contributionPercent;
+			}
+			return `${stateName} \n ${r.toFixed(2)} \n ${a}`;
+		})
+		
 	})
 	.on("mouseout", function(event, d) {
 		let stateName = d.properties.NAME_1;
-		if((showType != "_") && (showType != "")) {
-			d3.select(this)
-			.attr("fill", () => {
-				let v;
-				if(showType == "count") v = states[stateName].countRatio;
-				else if(showType == "count_") v = states[stateName].countRatio_;
-				else if(showType == "value") v = states[stateName].contributionPercent;
-				else if(showType == "value_") v = states[stateName].contributionPercent_;
-				console.log(v);
-				return colorScale(v);
-			});
-			tooltip.style("display", "none");
-		}
+		d3.select(this)
+		.attr("fill", () => {
+			let v, c;
+			if(showType == "count") {
+				v = states[stateName].countRatio;
+				c = colorScaleCount(v);
+			}
+			else {
+				v = states[stateName].contributionPercent;
+				c = colorScaleValue(v);
+			}
+			return c;
+		});
+		tooltip.style("display", "none");
+		
 	})
 	console.log(`Successfully finished running makeMapInteractive`)
 }
 
-function makeInfoBox() {
-	return 1;
+function makeColorScaleLegend() {
+	
+	legend = d3.select("svg").append("g")
+      .attr("transform", `translate(${colorScaleLegendX}, ${colorScaleLegendY})`);
+
+
+	legend
+	.selectAll("rect")
+      .data(dt)
+      .enter()
+      .append("rect")
+      .attr("width", colorScaleLegendWidth)
+      .attr("height", h)
+      .attr("x", 0) // Set x to 0 within the group
+      .attr("y", (d, j) => h * j)  // Calculate y based on index
+
+	updateColorScaleLegend();
+
 }
 
+function updateColorScaleLegend() {
+	let colorScale, scale, mx;
+	if(showType == "count") {
+		colorScale = colorScaleCount;
+		scale = scaleCount;
+		mx = countMax;
+	}
+	else {
+		colorScale = colorScaleValue;
+		scale = scaleValue;
+		mx = marketcapMax;
+	}
+
+	legend
+		.selectAll("rect")
+		.data(dt)
+		.attr("fill", (d, j) => colorScale((mx/colorScaleNumRects)*j))
+
+	legend
+		.call(d3.axisLeft(scale));
+}
 
 main()
