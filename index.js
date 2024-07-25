@@ -8,9 +8,11 @@ const colorScaleNumRects = 20;
 
 // File paths
 const boundaryJsonPath = "./fetched_data/india_state_ut_administered.geojson";
+// const boundaryJsonPath = "./processed_data/india_state_ut_administered.json";
 const companyDataPath = "./processed_data/final_file.csv"
 
 
+let precision = 2;
 let states = {};
 let tooltip;
 let checkboxes = document.getElementsByTagName("input");
@@ -52,9 +54,17 @@ function main() {
 			makeColorScales(companyData);
 			makeColorScaleLegend();
 			drawMap();
+			// deleteGeometryInfo();
 			makeMapInteractive();
 		}) 
 	})	
+}
+
+function deleteGeometryInfo() {
+	pathData.features.forEach(element => {
+		delete element.geometry
+	});
+	console.log("deleted geometry info of pathData")
 }
 
 function makeColorScales() {
@@ -84,7 +94,12 @@ function makeTooltip() {
 					.append("div")
 					.attr("id", "tooltip")
 					.style("display", "none")
-					.text("Hello")
+	tooltip.append("div")
+			.attr("class", "stateName")
+	tooltip.append("div")
+			.attr("class", "percent")
+	tooltip.append("div")
+			.attr("class", "absolute")
 					
 
 	console.log(`Successfully finished running makeTooltip`)
@@ -154,7 +169,7 @@ function drawMap() {
 	.enter()
 	.append("path")
 	.attr("d", path)
-	.attr("stroke", colorOfBoundary)
+	.attr("stroke", "white")
 	.attr("stroke-width", boundaryThickness)
 
 	showType = "value";
@@ -189,35 +204,37 @@ function makeMapInteractive() {
 		
 		d3.select(this)
 		.attr("fill", colorOnFocus);
+		// .classed("state-focus", true);
 		
 		tooltip.style("left", bbox.x + 20 + "px")
 		.style("top", bbox.y - 20 + "px" )
-		.style("display", "inline")
-		.text(() => {
-			let a, r;
-			if((showType == "count")) {
-				a = states[stateName].count;
-				r = states[stateName].countRatio;
-			}
-			else {
-				a = states[stateName].contributionAbsolute;
-				r = states[stateName].contributionPercent;
-			}
-			return `${stateName} \n ${r.toFixed(2)} \n ${a}`;
-		})
-		
+		.style("display", "block")
+
+		tooltip.select("div.stateName")
+				.text("State/UT name: " + stateName)
+		tooltip.select("div.percent")
+				.text(() => {
+					if(showType == "count") return "As % of total: " + (states[stateName].countRatio*100).toFixed(precision) + " %";
+					else return "As % of total: " + (states[stateName].contributionPercent*100).toFixed(precision) + " %";
+				})
+		tooltip.select("div.absolute")
+				.text(() => {
+					if(showType == "count") return "Absolute figure: " + states[stateName].count.toFixed(precision);
+					else return "Absolute figure: " + states[stateName].contributionAbsolute.toFixed(precision) + " Cr";
+				})
 	})
 	.on("mouseout", function(event, d) {
 		let stateName = d.properties.NAME_1;
 		d3.select(this)
+		// .classed("state-focus", false)
 		.attr("fill", () => {
 			let v, c;
 			if(showType == "count") {
-				v = states[stateName].countRatio;
+				v = states[stateName].count;
 				c = colorScaleCount(v);
 			}
 			else {
-				v = states[stateName].contributionPercent;
+				v = states[stateName].contributionAbsolute;
 				c = colorScaleValue(v);
 			}
 			return c;
