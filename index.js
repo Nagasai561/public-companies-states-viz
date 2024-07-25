@@ -7,8 +7,8 @@ const colorScaleLegendX = 100, colorScaleLegendY = 100;
 const colorScaleNumRects = 20;
 
 // File paths
-const boundaryJsonPath = "./fetched_data/india_state_ut_administered.geojson";
-// const boundaryJsonPath = "./processed_data/india_state_ut_administered.json";
+// const boundaryJsonPath = "./fetched_data/india_state_ut_administered.geojson";
+const boundaryJsonPath = "./processed_data/final_map.json";
 const companyDataPath = "./processed_data/final_file.csv"
 
 
@@ -148,10 +148,10 @@ function fillStatesInfo(companyData) {
 		}
 		let stateName = data["State"];
 		let contribution = Number(data["Market Cap"]);
-		states[stateName].contributionAbsolute += contribution;
-		states[stateName].count += 1
-		totalContribution += contribution;
-		totalCount += 1;
+        states[stateName].contributionAbsolute += contribution;
+        states[stateName].count += 1
+        totalContribution += contribution;
+        totalCount += 1;
 	}
 
 	for(let state in states) {
