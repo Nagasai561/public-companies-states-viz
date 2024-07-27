@@ -8,7 +8,8 @@ const colorScaleNumRects = 20;
 
 // File paths
 const boundaryJsonPath = "./processed_data/final_map.json";
-const companyDataPath = "./processed_data/final_file.csv"
+// const boundaryJsonPath = "./minified/minified_map.json"
+const companyDataPath = "./processed_data/final_file.csv";
 
 let colorScaleExponent = 0.7;
 let precision = 2;
@@ -35,7 +36,7 @@ let h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
 const svg = d3.select("body")
 				.append("svg")
 				.attr("width", width)
-				.attr("height", height)
+				.attr("height", height);
 
 
 // entry point for the code.
@@ -46,9 +47,9 @@ function main() {
 	document.querySelector("input.value").checked = true;
 	d3.json(boundaryJsonPath).then(pathData_ => {
 		d3.csv(companyDataPath).then(companyData => {
-			console.log("Succesfully loaded files")
+			console.log("Succesfully loaded files");
 
-			pathData = pathData_
+			pathData = pathData_;
 			fillStatesInfo(companyData);
 			makeColorScales(companyData);
 			drawMap(); // draw map should come after makeColorScales but before makeColorScaleLegend
@@ -84,22 +85,22 @@ function makeTooltip() {
 	let tooltip = d3.select("body")
 					.append("div")
 					.attr("id", "tooltip")
-					.style("display", "none")
+					.style("display", "none");
 	tooltip.append("div")
-			.attr("class", "stateName")
+			.attr("class", "stateName");
 	tooltip.append("div")
-			.attr("class", "percent")
+			.attr("class", "percent");
 	tooltip.append("div")
-			.attr("class", "absolute")
+			.attr("class", "absolute");
 					
 
-	console.log(`Successfully finished running makeTooltip`)
+	console.log(`Successfully finished running makeTooltip`);
 
 	return tooltip;
 }
 
 function checkboxChanged(event) {
-	console.log("checkboxChanged event triggered")
+	console.log("checkboxChanged event triggered");
 	let cb = event.target;
 	for(let elem of checkboxes) {
 		if((elem.checked == true) && (elem != cb)) {
@@ -115,7 +116,7 @@ function checkboxChanged(event) {
 function makeCheckboxesInteractive() {
 	for(let elem of checkboxes) {
 		if(elem.value == showType) elem.checked = true;
-		elem.addEventListener("change", checkboxChanged)
+		elem.addEventListener("change", checkboxChanged);
 	}
 }
 
@@ -128,7 +129,7 @@ function fillStatesInfo(companyData) {
 			contributionPercent: 0,
 			count: 0,
 			countRatio: 0
-		}
+		};
 	}
 
 	let totalContribution = 0;
@@ -140,7 +141,7 @@ function fillStatesInfo(companyData) {
 		let stateName = data["State"];
 		let contribution = Number(data["Market Cap"]);
         states[stateName].contributionAbsolute += contribution;
-        states[stateName].count += 1
+        states[stateName].count += 1;
         totalContribution += contribution;
         totalCount += 1;
 	}
@@ -149,23 +150,23 @@ function fillStatesInfo(companyData) {
 		states[state].contributionPercent = states[state].contributionAbsolute/totalContribution;
 		states[state].countRatio = states[state].count/totalCount;
 	}
-	console.log(`Successfully finished running fillStatesInfo`)
+	console.log(`Successfully finished running fillStatesInfo`);
 
 }
 
 function drawMap() {
-	const path = d3.geoPath().projection(d3.geoMercator().translate([-width/2, 700]).scale(800))
+	const path = d3.geoPath().projection(d3.geoMercator().translate([-width/2, 700]).scale(800));
 	svg.selectAll("path")
 	.data(pathData.features)
 	.enter()
 	.append("path")
 	.attr("d", path)
 	.attr("stroke", colorOfBoundary)
-	.attr("stroke-width", boundaryThickness)
+	.attr("stroke-width", boundaryThickness);
 
 	showType = "value";
 	updateMap();
-	console.log(`Successfully finished running drawMap`)
+	console.log(`Successfully finished running drawMap`);
 }
 
 function updateMap() {
@@ -183,7 +184,7 @@ function updateMap() {
 				c = colorScaleValue(v)
 			}
 			return c;
-		})
+		});
 }
 
 function makeMapInteractive() {
@@ -198,20 +199,20 @@ function makeMapInteractive() {
 		
 		tooltip.style("left", bbox.x + 20 + "px")
 		.style("top", bbox.y - 20 + "px" )
-		.style("display", "block")
+		.style("display", "block");
 
 		tooltip.select("div.stateName")
-				.text("State/UT name: " + stateName)
+				.text("State/UT name: " + stateName);
 		tooltip.select("div.percent")
 				.text(() => {
 					if(showType == "count") return "As % of total: " + (states[stateName].countRatio*100).toFixed(precision) + " %";
 					else return "As % of total: " + (states[stateName].contributionPercent*100).toFixed(precision) + " %";
-				})
+				});
 		tooltip.select("div.absolute")
 				.text(() => {
 					if(showType == "count") return "Absolute figure: " + states[stateName].count.toFixed(precision);
 					else return "Absolute figure: " + states[stateName].contributionAbsolute.toFixed(precision) + " Cr";
-				})
+				});
 	})
 	.on("mouseout", function(event, d) {
 		let stateName = d.properties.NAME_1;
@@ -248,7 +249,7 @@ function makeColorScaleLegend() {
       .attr("width", colorScaleLegendWidth)
       .attr("height", h)
       .attr("x", 0) // Set x to 0 within the group
-      .attr("y", (d, j) => h * j)  // Calculate y based on index
+      .attr("y", (d, j) => h * j);
 
 	updateColorScaleLegend();
 
@@ -270,7 +271,7 @@ function updateColorScaleLegend() {
 	legend
 		.selectAll("rect")
 		.data(dt)
-		.attr("fill", (d, j) => colorScale((mx/colorScaleNumRects)*j))
+		.attr("fill", (d, j) => colorScale((mx/colorScaleNumRects)*j));
 
 	legend
 		.call(d3.axisLeft(scale).tickFormat(formatIndianCurrency));
@@ -287,4 +288,4 @@ function formatIndianCurrency(number) {
     return formattedNumber + " Cr";
 }
 
-main()
+main();

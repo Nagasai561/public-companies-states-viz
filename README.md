@@ -37,7 +37,6 @@ These are the exlcuded company's symbols
 
 # Workflow
 
-+ Download GeoJson for India at **Source (2)**
 + Download group A and B company data from **Source (1)**, store them in */fetched_data*
 + Aggregate them to a single file.
 
@@ -52,7 +51,6 @@ These are the exlcuded company's symbols
                     get_companies_states.py
     **Source (3)** -------------------------> *./processed_data/companies_states.csv*
 
-+ Validate whether State names present in GeoJson and *./processed_data/companies_states.csv* are same. If not change them.
 
 + Combine state and market cap information.
 
@@ -61,3 +59,10 @@ These are the exlcuded company's symbols
                     +                           ------------------------------> *./processed_data/final_file.csv*    
 
     */processed_data/companies_states.csv*
+
++ Download GeoJson for India at **Source (2)**
+
++ Validate whether State names present in GeoJson and *./processed_data/companies_states.csv* are same. If not correct them.
+
+                                        make_state_names_uniform.py
+    */fetched_data/gadm41_IND_1.json* --------------------------------> */processed_data/final_map.json*
