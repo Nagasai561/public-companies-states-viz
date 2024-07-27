@@ -1,5 +1,0 @@
-pincodes and state: https://www.findpincode.net/pincodes-by-states-union-territories
-group A and B companies list: https://www.bseindia.com/corporates/List_Scrips.html
-states and companies api: https://api.bseindia.com/BseIndiaAPI/api/CorpInfoNew/w?scripcode={code}
-states and market price api: https://api.bseindia.com/BseIndiaAPI/api/StockTrading/w?flag=&quotetype=EQ&scripcode={code}
-India map: https://gadm.org/download_country.html

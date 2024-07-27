@@ -7,11 +7,10 @@ const colorScaleLegendX = 100, colorScaleLegendY = 100;
 const colorScaleNumRects = 20;
 
 // File paths
-// const boundaryJsonPath = "./fetched_data/india_state_ut_administered.geojson";
 const boundaryJsonPath = "./processed_data/final_map.json";
 const companyDataPath = "./processed_data/final_file.csv"
 
-
+let colorScaleExponent = 0.7;
 let precision = 2;
 let states = {};
 let tooltip;
@@ -22,7 +21,7 @@ let colorOfBoundary = "black";
 let boundaryThickness = "1px";
 let pathData;
 let legend;
-
+let colorFrom = "orange", colorTo = "red";
 let scaleCount, scaleValue;
 let colorScaleCount, colorScaleValue;
 let countMax, countMin;
@@ -52,19 +51,11 @@ function main() {
 			pathData = pathData_
 			fillStatesInfo(companyData);
 			makeColorScales(companyData);
+			drawMap(); // draw map should come after makeColorScales but before makeColorScaleLegend
 			makeColorScaleLegend();
-			drawMap();
-			// deleteGeometryInfo();
 			makeMapInteractive();
 		}) 
 	})	
-}
-
-function deleteGeometryInfo() {
-	pathData.features.forEach(element => {
-		delete element.geometry
-	});
-	console.log("deleted geometry info of pathData")
 }
 
 function makeColorScales() {
@@ -83,10 +74,10 @@ function makeColorScales() {
 		countMin = Math.min(countMin, currCount);
 	}	
 	
-	scaleCount = d3.scaleSqrt([countMin, countMax], [0, colorScaleLegendHeight]);
-	scaleValue = d3.scaleSqrt([marketcapMin, marketcapMax], [0, colorScaleLegendHeight]);
-	colorScaleValue = d3.scaleSqrt([marketcapMin, marketcapMax], ["orange", "red"]);
-	colorScaleCount = d3.scaleSqrt([countMin, countMax], ["orange", "red"]);
+	scaleCount = d3.scalePow([countMin, countMax], [0, colorScaleLegendHeight]).exponent(colorScaleExponent);
+	scaleValue = d3.scalePow([marketcapMin, marketcapMax], [0, colorScaleLegendHeight]).exponent(colorScaleExponent);
+	colorScaleValue = d3.scalePow([marketcapMin, marketcapMax], [colorFrom, colorTo]).exponent(colorScaleExponent);
+	colorScaleCount = d3.scalePow([countMin, countMax], [colorFrom, colorTo]).exponent(colorScaleExponent);
 }
 
 function makeTooltip() {
@@ -169,7 +160,7 @@ function drawMap() {
 	.enter()
 	.append("path")
 	.attr("d", path)
-	.attr("stroke", "white")
+	.attr("stroke", colorOfBoundary)
 	.attr("stroke-width", boundaryThickness)
 
 	showType = "value";
@@ -204,7 +195,6 @@ function makeMapInteractive() {
 		
 		d3.select(this)
 		.attr("fill", colorOnFocus);
-		// .classed("state-focus", true);
 		
 		tooltip.style("left", bbox.x + 20 + "px")
 		.style("top", bbox.y - 20 + "px" )
@@ -226,7 +216,6 @@ function makeMapInteractive() {
 	.on("mouseout", function(event, d) {
 		let stateName = d.properties.NAME_1;
 		d3.select(this)
-		// .classed("state-focus", false)
 		.attr("fill", () => {
 			let v, c;
 			if(showType == "count") {
@@ -284,7 +273,18 @@ function updateColorScaleLegend() {
 		.attr("fill", (d, j) => colorScale((mx/colorScaleNumRects)*j))
 
 	legend
-		.call(d3.axisLeft(scale));
+		.call(d3.axisLeft(scale).tickFormat(formatIndianCurrency));
+}
+
+function formatIndianCurrency(number) {
+	let numStr = number.toString();
+    let lastThree = numStr.substring(numStr.length - 3);
+    let otherNumbers = numStr.substring(0, numStr.length - 3);
+    if(otherNumbers != '') {
+        lastThree = ',' + lastThree;
+    }
+    let formattedNumber = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+    return formattedNumber + " Cr";
 }
 
 main()
