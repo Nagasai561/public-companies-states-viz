@@ -6,3 +6,30 @@
     color: red;
     border: 2px blue solid;
 }
+
+div#svg-container {
+    border: 1px red solid;
+}
+
+button {
+    display: block;
+}
+
+div#button-container {
+    border: 1px blue solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+h1 {
+    text-align: center;
+}
+
+div#github-link {
+    text-align: center;
+}
+
+div#master-container {
+    display: flex;
+}

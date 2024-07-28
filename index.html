@@ -9,16 +9,19 @@
 </head>
 <body>
     
-    <div>
-        <div class="checkbox-container">
-            <input type="checkbox" class="count"> By Count
+    <h1>Visualizing distribution of public companies across States</h1>
+    <div id="master-container">
+        <div id="svg-container">
+
         </div>
-        <div class="checkbox-container">
-            <input type="checkbox" class="value"> By Value
+        <div id="button-container">
+            <button type="button" class="count"> By count </button>
+            <button type="button" class="value"> By value </button>
         </div>
     </div>
+
     
-    
+    <div id="github-link"> For info on sources and others, visit this project's <a href="https://github.com/Nagasai561/public-companies-states-viz">github repo</a></div>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="./index.js" type="module"></script>
      <!-- <script src="./minified/minified_index.js"></script> -->

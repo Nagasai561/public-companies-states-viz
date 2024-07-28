@@ -1,4 +1,5 @@
-# Public Companies States Viz
+<!-- # Public Companies States Viz -->
+# State wise vizualization of Public Companies
 
 Visualize how public companies listed on BSE are distributed among Indian States and UTs.
 The data is last updated on 27 July 2024.
@@ -40,29 +41,37 @@ These are the exlcuded company's symbols
 + Download group A and B company data from **Source (1)**, store them in */fetched_data*
 + Aggregate them to a single file.
 
-    */fetched_data/group_A_companies.csv*
-                                             aggregated_companies.py
-                +                           --------------------------->   *./processed_data/aggregated_companies.csv*
+```
+   $ */fetched_data/group_A_companies.csv*
+                                             'aggregated_companies.py'
+                  +                           --------------------------->   *./processed_data/aggregated_companies.csv*
 
-    */fetched_data/group_B_companies.csv*
+    */fetched_data/group_B_companies.csv*$
+```
 
 + Get Company-State data.
 
+```
                     get_companies_states.py
     **Source (3)** -------------------------> *./processed_data/companies_states.csv*
+```
 
 
 + Combine state and market cap information.
 
+```
     */processed_data/aggregated_companies.csv*
                                                     make_final_file.py
                     +                           ------------------------------> *./processed_data/final_file.csv*    
 
     */processed_data/companies_states.csv*
+```
 
 + Download GeoJson for India at **Source (2)**
 
 + Validate whether State names present in GeoJson and *./processed_data/companies_states.csv* are same. If not correct them.
 
+```
                                         make_state_names_uniform.py
     */fetched_data/gadm41_IND_1.json* --------------------------------> */processed_data/final_map.json*
+```

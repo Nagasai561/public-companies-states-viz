@@ -15,7 +15,6 @@ let colorScaleExponent = 0.7;
 let precision = 2;
 let states = {};
 let tooltip;
-let checkboxes = document.getElementsByTagName("input");
 let showType = "value";
 let colorOnFocus = "green";
 let colorOfBoundary = "black";
@@ -33,7 +32,7 @@ let dt = [];
 for(let i=0; i<colorScaleNumRects; i++) dt.push(i);
 let h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
 
-const svg = d3.select("body")
+const svg = d3.select("div#svg-container")
 				.append("svg")
 				.attr("width", width)
 				.attr("height", height);
@@ -43,8 +42,7 @@ const svg = d3.select("body")
 function main() {
 
 	tooltip = makeTooltip();
-	makeCheckboxesInteractive();
-	document.querySelector("input.value").checked = true;
+	makeButtonsInteractive();
 	d3.json(boundaryJsonPath).then(pathData_ => {
 		d3.csv(companyDataPath).then(companyData => {
 			console.log("Succesfully loaded files");
@@ -99,24 +97,17 @@ function makeTooltip() {
 	return tooltip;
 }
 
-function checkboxChanged(event) {
-	console.log("checkboxChanged event triggered");
-	let cb = event.target;
-	for(let elem of checkboxes) {
-		if((elem.checked == true) && (elem != cb)) {
-			elem.checked = false;
-		}
-	}
-
-	showType = cb.getAttribute("class");
+function buttonClicked(event) {
+	console.log("Button click event triggered");
+	showType = event.target.getAttribute("class");
 	updateMap();
 	updateColorScaleLegend();
 }
 
-function makeCheckboxesInteractive() {
-	for(let elem of checkboxes) {
-		if(elem.value == showType) elem.checked = true;
-		elem.addEventListener("change", checkboxChanged);
+
+function makeButtonsInteractive() {
+	for(let elem of document.getElementsByTagName("button")) {
+		elem.addEventListener("click", buttonClicked);
 	}
 }
 
@@ -274,7 +265,10 @@ function updateColorScaleLegend() {
 		.attr("fill", (d, j) => colorScale((mx/colorScaleNumRects)*j));
 
 	legend
-		.call(d3.axisLeft(scale).tickFormat(formatIndianCurrency));
+		.call(d3.axisLeft(scale).tickFormat((d) => {
+			if(showType == "count") return d;
+			else return formatIndianCurrency(d);
+		}));
 }
 
 function formatIndianCurrency(number) {
