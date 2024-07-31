@@ -1,3 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 #tooltip {
     position: absolute;
     z-index: 10;
@@ -9,6 +20,12 @@
 
 div#svg-container {
     border: 1px red solid;
+    width: 50%;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
 }
 
 button {
@@ -20,6 +37,7 @@ div#button-container {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+  
 }
 
 h1 {
@@ -31,5 +49,10 @@ div#github-link {
 }
 
 div#master-container {
+    width: 100%;
+    min-height: 70%;
     display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    border: 1px pink solid;
 }

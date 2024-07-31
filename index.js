@@ -1,10 +1,11 @@
-// svg 
-const width = 1000, height = 700;
+let vw = window.innerWidth, vh = window.innerHeight;
+let svgWidth = 0.5*vw, svgHeight = 0.7*vh;
+let colorScaleLegendWidth = svgWidth/15, colorScaleLegendHeight = svgHeight/1.5;
+let colorScaleLegendX = svgWidth/8, colorScaleLegendY = svgHeight/4;
+let colorScaleNumRects = 20;
+let buttonContainerWidth;
 
-// Legend
-const colorScaleLegendWidth = 50, colorScaleLegendHeight = 500;
-const colorScaleLegendX = 100, colorScaleLegendY = 100;
-const colorScaleNumRects = 20;
+
 
 // File paths
 const boundaryJsonPath = "./processed_data/final_map.json";
@@ -32,10 +33,12 @@ let dt = [];
 for(let i=0; i<colorScaleNumRects; i++) dt.push(i);
 let h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
 
-const svg = d3.select("div#svg-container")
-				.append("svg")
-				.attr("width", width)
-				.attr("height", height);
+d3.select("div#svg-container")
+	.style("min-width", svgWidth + "px")
+	.style("min-height", svgHeight + "px")
+
+const svg = d3.select("svg")
+
 
 
 // entry point for the code.
@@ -146,7 +149,7 @@ function fillStatesInfo(companyData) {
 }
 
 function drawMap() {
-	const path = d3.geoPath().projection(d3.geoMercator().translate([-width/2, 700]).scale(800));
+	const path = d3.geoPath().projection(d3.geoMercator().translate([-svgWidth*1.25, svgHeight*1.15]).scale(vw*0.65));
 	svg.selectAll("path")
 	.data(pathData.features)
 	.enter()
