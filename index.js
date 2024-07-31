@@ -5,6 +5,12 @@ let colorScaleLegendX = svgWidth/8, colorScaleLegendY = svgHeight/4;
 let colorScaleNumRects = 20;
 let buttonContainerWidth;
 
+let device;
+if(vw > vh) {
+	device = "pc";
+} else {
+	device = "mobile";
+}
 
 
 // File paths
@@ -30,7 +36,7 @@ let marketcapMax, marketcapMin;
 
 
 let dt = [];
-for(let i=0; i<colorScaleNumRects; i++) dt.push(i);
+for(let i=0; i<=colorScaleNumRects; i++) dt.push(i);
 let h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
 
 d3.select("div#svg-container")
@@ -149,7 +155,7 @@ function fillStatesInfo(companyData) {
 }
 
 function drawMap() {
-	const path = d3.geoPath().projection(d3.geoMercator().translate([-svgWidth*1.25, svgHeight*1.15]).scale(vw*0.65));
+	const path = d3.geoPath().projection(d3.geoMercator().center([svgWidth*0.5, svgHeight*0.02]).translate([-svgWidth, svgHeight]).scale(vh*1.2));
 	svg.selectAll("path")
 	.data(pathData.features)
 	.enter()

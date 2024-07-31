@@ -21,6 +21,7 @@ body, html {
 div#svg-container {
     border: 1px red solid;
     width: 50%;
+    overflow: scroll;
 }
 
 svg {
@@ -30,6 +31,11 @@ svg {
 
 button {
     display: block;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    font-size: 1rem;
 }
 
 div#button-container {
@@ -52,7 +58,7 @@ div#master-container {
     width: 100%;
     min-height: 70%;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     flex-wrap: wrap;
     border: 1px pink solid;
 }
