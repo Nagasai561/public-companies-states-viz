@@ -21,6 +21,7 @@ body, html {
 div#svg-container {
     border: 1px red solid;
     width: 50%;
+    position: relative;
 }
 
 svg {
@@ -35,6 +36,7 @@ button {
     padding-left: 3rem;
     padding-right: 3rem;
     font-size: 1rem;
+    margin: 0.5rem;
 }
 
 div#button-container {
@@ -46,11 +48,22 @@ div#button-container {
 
 h1 {
     text-align: center;
+    margin: 2rem;
+    font-family: sans-serif;
 }
 
-div#github-link {
+div#github-link, div#retry {
     text-align: center;
+    margin: 1rem;
+    margin-bottom: 0.5rem;
+    font-family: sans-serif;
 }
+
+div#retry {
+    margin-top: 3rem;
+}
+
+
 
 div#master-container {
     width: 100vw;

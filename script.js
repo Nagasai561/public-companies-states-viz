@@ -104,10 +104,11 @@ function makeColorScales() {
 }
 
 function makeTooltip() {
-	let tooltip = d3.select("body")
+	let tooltip = d3.select("div#svg-container")
 					.append("div")
 					.attr("id", "tooltip")
-					.style("display", "none");
+					.style("display", "none")
+					.style("z-index", "10");
 	tooltip.append("div")
 			.attr("class", "stateName");
 	tooltip.append("div")
@@ -171,7 +172,6 @@ function fillStatesInfo(companyData) {
 
 function drawMap() {
 	let path;
-	let ans = svgWidth*1.3;
 	let diag = Math.sqrt(svgWidth*svgWidth + svgHeight*svgHeight);
 	if(device == "pc") {
 		path = d3.geoPath().projection(d3.geoMercator().center([79, 22]).translate([svgWidth/2, svgHeight/2]).scale(svgWidth*1.3));
@@ -219,10 +219,6 @@ function makeMapInteractive() {
 		
 		d3.select(this)
 		.attr("fill", colorOnFocus);
-		
-		tooltip.style("left", bbox.x + 20 + "px")
-		.style("top", bbox.y - 20 + "px" )
-		.style("display", "block");
 
 		tooltip.select("div.stateName")
 				.text("State/UT name: " + stateName);
@@ -234,8 +230,19 @@ function makeMapInteractive() {
 		tooltip.select("div.absolute")
 				.text(() => {
 					if(showType == "count") return "Absolute figure: " + states[stateName].count.toFixed(precision);
-					else return "Absolute figure: " + states[stateName].contributionAbsolute.toFixed(precision) + " Cr";
+					// else return "Absolute figure: " + states[stateName].contributionAbsolute.toFixed(precision) + " Cr";
+					else return "Absolute figure: " + formatIndianCurrency(states[stateName].contributionAbsolute.toFixed(precision));
+
 				});
+
+		tooltip.style("left", () => {
+			let w = 160;
+			let svgNode = svg.node().getBBox();
+			if(bbox.x+w < svgNode.width) return bbox.x + "px";
+			else return bbox.x -w + "px";
+		})
+		.style("top", bbox.y - 50 + "px" )
+		.style("display", "block");
 	})
 	.on("mouseout", function(event, d) {
 		let stateName = d.properties.NAME_1;
@@ -271,7 +278,7 @@ function defineLegendValues() {
 function makeColorScaleLegend() {
 
 
-	for(let i=0; i<=colorScaleNumRects; i++) dt.push(i);
+	for(let i=0; i<colorScaleNumRects; i++) dt.push(i);
 	let h;
 	if(device == "pc") h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
 	else h = Math.floor(colorScaleLegendWidth/colorScaleNumRects);
@@ -342,13 +349,17 @@ function updateColorScaleLegend() {
 }
 
 function formatIndianCurrency(number) {
-	let numStr = number.toString();
+	let totalString = number.toString();
+	let ind = totalString.indexOf('.');
+	let numStr;
+	if(ind == -1) numStr = totalString;
+	else numStr = totalString.substring(0, ind);
     let lastThree = numStr.substring(numStr.length - 3);
     let otherNumbers = numStr.substring(0, numStr.length - 3);
     if(otherNumbers != '') {
         lastThree = ',' + lastThree;
     }
-    let formattedNumber = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+    let formattedNumber = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + ((ind != -1)?totalString.substring(ind):"");
     return formattedNumber + " Cr";
 }
 
