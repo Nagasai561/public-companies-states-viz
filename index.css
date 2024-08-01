@@ -21,7 +21,6 @@ body, html {
 div#svg-container {
     border: 1px red solid;
     width: 50%;
-    overflow: scroll;
 }
 
 svg {
@@ -43,7 +42,6 @@ div#button-container {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-  
 }
 
 h1 {
@@ -61,4 +59,11 @@ div#master-container {
     justify-content: space-around;
     flex-wrap: wrap;
     border: 1px pink solid;
+}
+
+@media screen and (orientation: portrait) {
+    div#svg-container {
+        border: 1px red solid;
+        width: 100%;
+    }
 }

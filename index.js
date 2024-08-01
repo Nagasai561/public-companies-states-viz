@@ -1,9 +1,17 @@
 let vw = window.innerWidth, vh = window.innerHeight;
-let svgWidth = 0.5*vw, svgHeight = 0.7*vh;
+const svg = d3.select("svg")
+
+let svgContainer = d3.select("div#svg-container").node().getBoundingClientRect();
+let svgWidth = svgContainer.width;
+let svgHeight = svgContainer.height;
+
 let colorScaleLegendWidth = svgWidth/15, colorScaleLegendHeight = svgHeight/1.5;
 let colorScaleLegendX = svgWidth/8, colorScaleLegendY = svgHeight/4;
 let colorScaleNumRects = 20;
 let buttonContainerWidth;
+// let svgWidth = 0.5*vw, svgHeight = 0.7*vh;
+// let svgWidth, svgHeight;
+
 
 let device;
 if(vw > vh) {
@@ -43,7 +51,7 @@ d3.select("div#svg-container")
 	.style("min-width", svgWidth + "px")
 	.style("min-height", svgHeight + "px")
 
-const svg = d3.select("svg")
+
 
 
 
@@ -155,7 +163,9 @@ function fillStatesInfo(companyData) {
 }
 
 function drawMap() {
-	const path = d3.geoPath().projection(d3.geoMercator().center([svgWidth*0.5, svgHeight*0.02]).translate([-svgWidth, svgHeight]).scale(vh*1.2));
+	const path = d3.geoPath().projection(d3.geoMercator().center([79, 22]).translate([svgWidth/2, svgHeight/2]).scale(svgHeight*1.7));
+	svg.selectAll("path");
+
 	svg.selectAll("path")
 	.data(pathData.features)
 	.enter()
