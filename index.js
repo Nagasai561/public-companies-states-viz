@@ -5,12 +5,11 @@ let svgContainer = d3.select("div#svg-container").node().getBoundingClientRect()
 let svgWidth = svgContainer.width;
 let svgHeight = svgContainer.height;
 
-let colorScaleLegendWidth = svgWidth/15, colorScaleLegendHeight = svgHeight/1.5;
-let colorScaleLegendX = svgWidth/8, colorScaleLegendY = svgHeight/4;
-let colorScaleNumRects = 20;
-let buttonContainerWidth;
-// let svgWidth = 0.5*vw, svgHeight = 0.7*vh;
-// let svgWidth, svgHeight;
+
+let colorScaleNumRects = 10;
+let colorScaleLegendWidth, colorScaleLegendHeight;
+let colorScaleLegendX, colorScaleLegendY;
+
 
 
 let device;
@@ -19,7 +18,7 @@ if(vw > vh) {
 } else {
 	device = "mobile";
 }
-
+console.log(device)
 
 // File paths
 const boundaryJsonPath = "./processed_data/final_map.json";
@@ -44,8 +43,7 @@ let marketcapMax, marketcapMin;
 
 
 let dt = [];
-for(let i=0; i<=colorScaleNumRects; i++) dt.push(i);
-let h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
+
 
 d3.select("div#svg-container")
 	.style("min-width", svgWidth + "px")
@@ -60,6 +58,7 @@ function main() {
 
 	tooltip = makeTooltip();
 	makeButtonsInteractive();
+	defineLegendValues();
 	d3.json(boundaryJsonPath).then(pathData_ => {
 		d3.csv(companyDataPath).then(companyData => {
 			console.log("Succesfully loaded files");
@@ -73,6 +72,9 @@ function main() {
 		}) 
 	})	
 }
+
+
+
 
 function makeColorScales() {
 	marketcapMax = -1;
@@ -90,10 +92,15 @@ function makeColorScales() {
 		countMin = Math.min(countMin, currCount);
 	}	
 	
-	scaleCount = d3.scalePow([countMin, countMax], [0, colorScaleLegendHeight]).exponent(colorScaleExponent);
-	scaleValue = d3.scalePow([marketcapMin, marketcapMax], [0, colorScaleLegendHeight]).exponent(colorScaleExponent);
 	colorScaleValue = d3.scalePow([marketcapMin, marketcapMax], [colorFrom, colorTo]).exponent(colorScaleExponent);
 	colorScaleCount = d3.scalePow([countMin, countMax], [colorFrom, colorTo]).exponent(colorScaleExponent);
+	if(device == "pc") {
+		scaleCount = d3.scalePow([countMin, countMax], [0, colorScaleLegendHeight]).exponent(colorScaleExponent);
+		scaleValue = d3.scalePow([marketcapMin, marketcapMax], [0, colorScaleLegendHeight]).exponent(colorScaleExponent);
+	} else {
+		scaleCount = d3.scalePow([countMin, countMax], [0, colorScaleLegendWidth]).exponent(colorScaleExponent);
+		scaleValue = d3.scalePow([marketcapMin, marketcapMax], [0, colorScaleLegendWidth]).exponent(colorScaleExponent);
+	}
 }
 
 function makeTooltip() {
@@ -163,8 +170,14 @@ function fillStatesInfo(companyData) {
 }
 
 function drawMap() {
-	const path = d3.geoPath().projection(d3.geoMercator().center([79, 22]).translate([svgWidth/2, svgHeight/2]).scale(svgHeight*1.7));
-	svg.selectAll("path");
+	let path;
+	let ans = svgWidth*1.3;
+	let diag = Math.sqrt(svgWidth*svgWidth + svgHeight*svgHeight);
+	if(device == "pc") {
+		path = d3.geoPath().projection(d3.geoMercator().center([79, 22]).translate([svgWidth/2, svgHeight/2]).scale(svgWidth*1.3));
+	} else {
+		path = d3.geoPath().projection(d3.geoMercator().center([82, 22]).translate([svgWidth/2, svgHeight*0.6]).scale(diag))
+	}
 
 	svg.selectAll("path")
 	.data(pathData.features)
@@ -245,7 +258,23 @@ function makeMapInteractive() {
 	console.log(`Successfully finished running makeMapInteractive`)
 }
 
+function defineLegendValues() {
+	if(device == "pc") {
+		colorScaleLegendWidth = svgWidth/15, colorScaleLegendHeight = svgHeight/1.5;
+		colorScaleLegendX = svgWidth/8, colorScaleLegendY = svgHeight/7;
+	} else {
+		colorScaleLegendWidth = svgWidth/1.5, colorScaleLegendHeight = svgHeight/15;
+		colorScaleLegendX = svgWidth/6, colorScaleLegendY = svgHeight/10;
+	}
+}
+
 function makeColorScaleLegend() {
+
+
+	for(let i=0; i<=colorScaleNumRects; i++) dt.push(i);
+	let h;
+	if(device == "pc") h = Math.floor(colorScaleLegendHeight/colorScaleNumRects);
+	else h = Math.floor(colorScaleLegendWidth/colorScaleNumRects);
 	
 	legend = d3.select("svg").append("g")
       .attr("transform", `translate(${colorScaleLegendX}, ${colorScaleLegendY})`);
@@ -256,10 +285,22 @@ function makeColorScaleLegend() {
       .data(dt)
       .enter()
       .append("rect")
-      .attr("width", colorScaleLegendWidth)
-      .attr("height", h)
-      .attr("x", 0) // Set x to 0 within the group
-      .attr("y", (d, j) => h * j);
+      .attr("width", () => {
+		if(device == "pc") return colorScaleLegendWidth;
+		else return h;
+	  })
+      .attr("height", () => {
+		if(device == "pc") return h;
+		else return colorScaleLegendHeight;
+	  })
+      .attr("x", (d, j) => {
+			if(device == "pc") return 0;
+			else return h*j
+		}) 
+      .attr("y", (d, j) => {
+		if(device == "pc") return h * j;
+		else return 0;
+	  });
 
 	updateColorScaleLegend();
 
@@ -283,11 +324,21 @@ function updateColorScaleLegend() {
 		.data(dt)
 		.attr("fill", (d, j) => colorScale((mx/colorScaleNumRects)*j));
 
-	legend
-		.call(d3.axisLeft(scale).tickFormat((d) => {
-			if(showType == "count") return d;
-			else return formatIndianCurrency(d);
-		}));
+	console.log(device)
+	if(device == "pc") {
+		legend
+			.call(d3.axisLeft(scale).tickFormat((d) => {
+				if(showType == "count") return d;
+				else return formatIndianCurrency(d);
+			}));
+	} else {
+		legend
+			.call(d3.axisTop(scale).tickFormat((d) => {
+				if(showType == "count") return d;
+				else return d/100000 + " Lakh Cr";
+			}).ticks(6));
+	}
+
 }
 
 function formatIndianCurrency(number) {
