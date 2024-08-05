@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map</title>
-    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="./style.css">
 
 </head>
 <body>
@@ -20,12 +20,14 @@
                 <button type="button" class="count"> By count </button>
                 <button type="button" class="value"> By value </button>
             </div>
+            <div class="buttonInfo" id="countInfo" style="display: none;"> Shows how many public companies are present in a state</div>
+            <div class="buttonInfo" id="valueInfo" style="display: none;"> Shows total market value of all public companies present in a state</div>
         </div>
     
         <div id="retry">If map isn't visible or overflowing, try <a href="javascript:window.location.reload();">refreshing</a>  the page</div>
         <div id="github-link"> For info on sources and others, visit this project's <a href="https://github.com/Nagasai561/public-companies-states-viz">github repo</a></div>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="./index.js" type="module"></script>
+    <script src="./script.js" type="module"></script>
      <!-- <script src="./minified/minified_index.js"></script> -->
 </body>
 </html>

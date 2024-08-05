@@ -44,6 +44,7 @@ div#button-container {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    position: relative;
 }
 
 h1 {
@@ -63,7 +64,12 @@ div#retry {
     margin-top: 3rem;
 }
 
-
+div.buttonInfo {
+    position: absolute;
+    display: none;
+    max-width: 50%;
+    z-index: 2;
+}
 
 div#master-container {
     width: 100vw;
@@ -74,6 +80,14 @@ div#master-container {
     border: 1px pink solid;
 }
 
+div.buttonInfo {
+    background-color: yellow;
+    width: auto;
+    word-wrap: auto;
+    padding: 0.5rem;
+    border: black 1px solid;
+    /* min-width: 500px; */
+}
 @media screen and (orientation: portrait) {
     div#svg-container {
         border: 1px red solid;

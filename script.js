@@ -59,6 +59,7 @@ function main() {
 	tooltip = makeTooltip();
 	makeButtonsInteractive();
 	defineLegendValues();
+	buttonHoverInfo();
 	d3.json(boundaryJsonPath).then(pathData_ => {
 		d3.csv(companyDataPath).then(companyData => {
 			console.log("Succesfully loaded files");
@@ -73,7 +74,35 @@ function main() {
 	})	
 }
 
+function buttonHoverInfo() {
+	if(device == "phone") {
+		return;
+	}
+	let countInfo = document.getElementById("countInfo");
+	let valueInfo = document.getElementById("valueInfo");
+	let buttons = document.getElementsByTagName("button");
 
+	for(let button of buttons) {
+		let buttonClass = button.getAttribute("class");
+		let rect = button.getBoundingClientRect();
+		if(buttonClass == "count") {
+			countInfo.style.right =  vw - rect.right + "px";
+			countInfo.style.top = rect.bottom + "px";
+		} else {
+			valueInfo.style.right = vw - rect.right + "px";
+			valueInfo.style.top = rect.bottom + "px";
+		}
+
+		button.addEventListener("mouseover", () => {
+			if(buttonClass == "count") countInfo.style.display = "inline";
+			else valueInfo.style.display = "inline";
+		})
+		button.addEventListener("mouseout", () => {
+			if(buttonClass == "count") countInfo.style.display = "none";
+			else valueInfo.style.display = "none";
+		})
+	}
+}
 
 
 function makeColorScales() {
@@ -343,7 +372,7 @@ function updateColorScaleLegend() {
 			.call(d3.axisTop(scale).tickFormat((d) => {
 				if(showType == "count") return d;
 				else return d/100000 + " Lakh Cr";
-			}).ticks(6));
+			}).ticks(3));
 	}
 
 }
