@@ -75,3 +75,15 @@ These are the exlcuded company's symbols
                                         make_state_names_uniform.py
     */fetched_data/gadm41_IND_1.json* --------------------------------> */processed_data/final_map.json*
 ```
+
++ To reduce memory footprint, we will minify geojson and js files.
+
+```
+                    minify.py
+    */script.js -----------------------> ./minified/minified_script.js
+```
+
+```
+                                        minify.py
+    */processed_data/final_map.json ------------------------> ./minified_map.json
+```

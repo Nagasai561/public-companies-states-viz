@@ -1,5 +1,5 @@
 let vw = window.innerWidth, vh = window.innerHeight;
-const svg = d3.select("svg")
+const svg = d3.select("svg");
 
 let svgContainer = d3.select("div#svg-container").node().getBoundingClientRect();
 let svgWidth = svgContainer.width;
@@ -18,11 +18,9 @@ if(vw > vh) {
 } else {
 	device = "mobile";
 }
-console.log(device)
 
 // File paths
-const boundaryJsonPath = "./processed_data/final_map.json";
-// const boundaryJsonPath = "./reduced_final_map_tinkered.json";
+const boundaryJsonPath = "./minified/minified_map.json";
 const companyDataPath = "./processed_data/final_file.csv";
 
 let colorScaleExponent = 0.7;
@@ -47,7 +45,7 @@ let dt = [];
 
 d3.select("div#svg-container")
 	.style("min-width", svgWidth + "px")
-	.style("min-height", svgHeight + "px")
+	.style("min-height", svgHeight + "px");
 
 
 
@@ -205,7 +203,7 @@ function drawMap() {
 	if(device == "pc") {
 		path = d3.geoPath().projection(d3.geoMercator().center([79, 22]).translate([svgWidth/2, svgHeight/2]).scale(svgWidth*1.3));
 	} else {
-		path = d3.geoPath().projection(d3.geoMercator().center([82, 22]).translate([svgWidth/2, svgHeight*0.6]).scale(diag))
+		path = d3.geoPath().projection(d3.geoMercator().center([82, 22]).translate([svgWidth/2, svgHeight*0.6]).scale(diag));
 	}
 
 	svg.selectAll("path")
@@ -259,7 +257,6 @@ function makeMapInteractive() {
 		tooltip.select("div.absolute")
 				.text(() => {
 					if(showType == "count") return "Absolute figure: " + states[stateName].count.toFixed(precision);
-					// else return "Absolute figure: " + states[stateName].contributionAbsolute.toFixed(precision) + " Cr";
 					else return "Absolute figure: " + formatIndianCurrency(states[stateName].contributionAbsolute.toFixed(precision));
 
 				});
@@ -291,7 +288,7 @@ function makeMapInteractive() {
 		tooltip.style("display", "none");
 		
 	})
-	console.log(`Successfully finished running makeMapInteractive`)
+	// console.log(`Successfully finished running makeMapInteractive`)
 }
 
 function defineLegendValues() {
@@ -360,7 +357,7 @@ function updateColorScaleLegend() {
 		.data(dt)
 		.attr("fill", (d, j) => colorScale((mx/colorScaleNumRects)*j));
 
-	console.log(device)
+	// console.log(device)
 	if(device == "pc") {
 		legend
 			.call(d3.axisLeft(scale).tickFormat((d) => {

@@ -18,8 +18,8 @@ def minify_js(from_file_path, to_file_path):
 geojson_file_path = "./processed_data/final_map.json"
 minified_geojson_file_path = "./minified/minified_map.json"
 
-js_file_path = "./index.js"
-minified_js_file_path = "./minified/minified_index.js"
+js_file_path = "./script.js"
+minified_js_file_path = "./minified/minified_script.js"
 
 minify_json(geojson_file_path, minified_geojson_file_path)
 minify_js(js_file_path, minified_js_file_path)
