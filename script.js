@@ -22,7 +22,7 @@ console.log(device)
 
 // File paths
 const boundaryJsonPath = "./processed_data/final_map.json";
-// const boundaryJsonPath = "./minified/minified_map.json"
+// const boundaryJsonPath = "./reduced_final_map_tinkered.json";
 const companyDataPath = "./processed_data/final_file.csv";
 
 let colorScaleExponent = 0.7;
@@ -245,7 +245,7 @@ function makeMapInteractive() {
 	.on("mouseover", function (event, d) {
 		let stateName = d.properties.NAME_1;
 		const bbox = this.getBBox();
-		
+		console.log(stateName);	
 		d3.select(this)
 		.attr("fill", colorOnFocus);
 
@@ -299,8 +299,8 @@ function defineLegendValues() {
 		colorScaleLegendWidth = svgWidth/15, colorScaleLegendHeight = svgHeight/1.5;
 		colorScaleLegendX = svgWidth/8, colorScaleLegendY = svgHeight/7;
 	} else {
-		colorScaleLegendWidth = svgWidth/1.5, colorScaleLegendHeight = svgHeight/15;
-		colorScaleLegendX = svgWidth/6, colorScaleLegendY = svgHeight/10;
+		colorScaleLegendWidth = svgWidth/1.2, colorScaleLegendHeight = svgHeight/15;
+		colorScaleLegendX = svgWidth/11, colorScaleLegendY = svgHeight/10;
 	}
 }
 
